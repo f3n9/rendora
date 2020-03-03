@@ -15,7 +15,7 @@ package rendora
 
 import (
 	"strings"
-
+        "fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -51,29 +51,39 @@ func (R *Rendora) isWhitelisted(c *gin.Context) bool {
 	mua := c.Request.Header.Get("User-Agent")
 	muaLower := strings.ToLower(mua)
 	filters := &R.c.Filters
-
+        
+	fmt.Println("Passed in MUA: ", mua, muaLower)
+	fmt.Println("UA Default: ", filters.UserAgent.Default)
+	
 	lenKeywords := len(filters.UserAgent.Exceptions.Keywords)
 	lenExceptions := len(filters.UserAgent.Exceptions.Exact)
+        fmt.Println("lenK: ", lenKeywords)
+	fmt.Println("lenE: ", lenExceptions)
 
 	switch filters.UserAgent.Default {
 	case "whitelist":
 
 		if lenKeywords > 0 && isKeywordInSlice(filters.UserAgent.Exceptions.Keywords, muaLower) {
+		        fmt.Println("false: 1")
 			return false
 		}
 		if lenExceptions > 0 && isInSlice(filters.UserAgent.Exceptions.Exact, mua) {
+		        fmt.Println("false: 2")
 			return false
 		}
 		break
 	case "blacklist":
 		if lenKeywords == 0 && lenExceptions == 0 {
+		        fmt.Println("false: 3")
 			return false
 		}
 		if lenKeywords > 0 && isKeywordInSlice(filters.UserAgent.Exceptions.Keywords, muaLower) == false {
+		        fmt.Println("false: 4")
 			return false
 		}
 
 		if lenExceptions > 0 && isInSlice(filters.UserAgent.Exceptions.Exact, mua) == false {
+		        fmt.Println("false: 5")
 			return false
 		}
 
@@ -93,14 +103,17 @@ func (R *Rendora) isWhitelisted(c *gin.Context) bool {
 		return false
 	case "whitelist":
 		if len(filters.Paths.Exceptions.Exact) > 0 && isInSlice(filters.Paths.Exceptions.Exact, uri) {
+		        fmt.Println("false: 6")
 			return false
 		}
 
 		if len(filters.Paths.Exceptions.Prefix) > 0 && hasPrefixinSlice(filters.Paths.Exceptions.Prefix, uri) {
+		        fmt.Println("false: 7")
 			return false
 		}
 		return true
 	default:
+	        fmt.Println("false: default")
 		return false
 	}
 
