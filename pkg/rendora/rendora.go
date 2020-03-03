@@ -37,6 +37,7 @@ func (R *Rendora) getProxy(c *gin.Context) {
 
 func (R *Rendora) middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		fmt.Println("URI: ", c.Request.RequestURI)
 		if c.Request.Method != http.MethodGet {
 			fmt.Println("via proxy 1")
 			R.getProxy(c)
