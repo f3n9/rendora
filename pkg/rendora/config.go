@@ -138,7 +138,7 @@ func (R *Rendora) initConfig() error {
 	viper.SetDefault("server.auth.name", "X-Auth-Rendora")
 	viper.SetDefault("server.auth.value", "")
 	viper.SetDefault("headless.blockedURLs", []string{
-		"*.png", "*.jpg", "*.jpeg", "*.webp", "*.gif", "*.css", "*.woff2", "*.svg", "*.woff", "*.ttf", "*.ico",
+		"*.png", "*.jpg", "*.jpeg", "*.webp", "*.gif", "*.woff2", "*.svg", "*.woff", "*.ttf", "*.ico",
 		"https://www.youtube.com/*", "https://www.google-analytics.com/*",
 		"https://fonts.googleapis.com/*", "https://analytics.yinxiang.com/*", "*/countly.js", "*/countly.min.js",
 	})
