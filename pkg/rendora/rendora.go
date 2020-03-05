@@ -39,22 +39,18 @@ func (R *Rendora) middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		fmt.Println("URI: ", c.Request.RequestURI)
 		if c.Request.Method != http.MethodGet {
-			fmt.Println("via proxy 1")
 			R.getProxy(c)
 			return
 		}
 
 		if c.Request.Header.Get("X-Rendora-Type") == "RENDER" {
-			fmt.Println("via proxy 2")
 			R.getProxy(c)
 			return
 		}
 
 		if R.isWhitelisted(c) {
-			fmt.Println("via SSR")
 			R.getSSR(c)
 		} else {
-			fmt.Println("via proxy 3")
 			R.getProxy(c)
 		}
 
