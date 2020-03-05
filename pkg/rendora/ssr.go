@@ -14,7 +14,6 @@ limitations under the License.
 package rendora
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -99,17 +98,14 @@ func (R *Rendora) getResponse(uri string) (*HeadlessResponse, error) {
 	}
 
 	if exists {
-		fmt.Println("hit cache")
 		return resp, nil
 	}
-        fmt.Println("missed cache")
+
 	dt, err := R.getHeadless(uri)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("got headless result")
 	if R.c.Output.Minify {
-		fmt.Println("minified")
 		m := minify.New()
 		m.AddFunc("text/html", html.Minify)
 		m.AddFunc("text/css", css.Minify)
