@@ -241,7 +241,7 @@ func (c *headlessClient) getResponse(uri string) (*HeadlessResponse, error) {
               }
               return ret, nil
             case <-ctx.Done():
-              return nil, fmt.Errorf("reponse timeout from headless chrome")
+              return nil, errors.New("reponse timeout from headless chrome")
           }
 	}
 }
