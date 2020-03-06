@@ -214,6 +214,10 @@ func (c *headlessClient) getResponse(uri string) (*HeadlessResponse, error) {
                 return nil, err
               }
             case <-loadEventFired.Ready():
+              waitUntil := c.rendora.c.Headless.WaitAfterDOMLoad
+              if waitUntil > 0 {
+                time.Sleep(time.Duration(waitUntil) * time.Millisecond)
+              }
               doc, err := c.C.DOM.GetDocument(ctx, nil)
               if err != nil {
                 return nil, err
