@@ -202,45 +202,46 @@ func (c *headlessClient) getResponse(uri string) (*HeadlessResponse, error) {
 	}
 	defer domContent.Close()
 
-	waitUntil := c.rendora.c.Headless.WaitAfterDOMLoad
-	if waitUntil > 0 {
-		time.Sleep(time.Duration(waitUntil) * time.Millisecond)
+        loadEventFired, err := c.C.Page.LoadEventFired(ctx)
+        if err != nil {
+          return nil, err
 	}
-
-	if _, err = domContent.Recv(); err != nil {
-		return nil, err
+        defer loadEventFired.Close()
+        for {
+          select {
+            case <-domContent.Ready():
+              if _, err = domContent.Recv(); err != nil {
+                return nil, err
+              }
+            case <-loadEventFired.Ready():
+              doc, err := c.C.DOM.GetDocument(ctx, nil)
+              if err != nil {
+                return nil, err
+              }
+              domResponse, err := c.C.DOM.GetOuterHTML(ctx, &dom.GetOuterHTMLArgs{
+                NodeID: &doc.Root.NodeID,
+              })
+              if err != nil {
+                return nil, err
+              }
+              responseHeaders := make(map[string]string)
+              err = json.Unmarshal(responseReply.Response.Headers, &responseHeaders)
+              if err != nil {
+                return nil, err
+              }
+              elapsed := float64(time.Since(timeStart)) / float64(time.Duration(1*time.Millisecond))
+              if c.rendora.c.Server.Enable {
+                c.rendora.metrics.Duration.Observe(elapsed)
+              }
+              ret := &HeadlessResponse{
+                Content: domResponse.OuterHTML,
+                Status:  responseReply.Response.Status,
+                Headers: responseHeaders,
+                Latency: elapsed,
+              }
+              return ret, nil
+            case <-ctx.Done():
+              return nil, fmt.Errorf("reponse timeout from headless chrome")
+          }
 	}
-
-	doc, err := c.C.DOM.GetDocument(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	domResponse, err := c.C.DOM.GetOuterHTML(ctx, &dom.GetOuterHTMLArgs{
-		NodeID: &doc.Root.NodeID,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	elapsed := float64(time.Since(timeStart)) / float64(time.Duration(1*time.Millisecond))
-
-	if c.rendora.c.Server.Enable {
-		
-		c.rendora.metrics.Duration.Observe(elapsed)
-	}
-
-	responseHeaders := make(map[string]string)
-	err = json.Unmarshal(responseReply.Response.Headers, &responseHeaders)
-	if err != nil {
-		return nil, err
-	}
-	ret := &HeadlessResponse{
-		Content:    domResponse.OuterHTML,
-		Status:  responseReply.Response.Status,
-		Headers: responseHeaders,
-		Latency: elapsed,
-	}
-
-	return ret, nil
 }
