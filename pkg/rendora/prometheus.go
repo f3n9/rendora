@@ -43,7 +43,7 @@ func (R *Rendora) initPrometheus() {
 	ret.Duration = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "rendora_latency_ssr",
 		Help:    "SSR Latency",
-		Buckets: []float64{50, 100, 150, 200, 250, 300, 350, 400, 500},
+		Buckets: []float64{50, 100, 150, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, },
 	})
 
 	prometheus.MustRegister(ret.CountTotal)
